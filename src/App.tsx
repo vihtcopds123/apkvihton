@@ -22,6 +22,8 @@ import './App.css'
 import { useAuthStore } from './store/useAuthStore'
 import { useAppStore, setGlobalNavigate } from './store/useAppStore'
 import { supabase } from './supabaseClient'
+import { Capacitor } from '@capacitor/core'
+import { PushNotifications } from '@capacitor/push-notifications'
 
 // Import panels
 import { LoginPanel } from './panels/LoginPanel'
@@ -628,12 +630,78 @@ function AppContent() {
     }
   }, [activeStory, selectedGroupId])
 
+  const navigate = useNavigate()
+
   // Получение моего профиля
   useEffect(() => {
     if (!user) return
     supabase.from('profiles').select('*').eq('id', user.id).maybeSingle().then(({ data }) => {
       if (data) setMyProfile(data)
     })
+  }, [user])
+
+  // Регистрация нативных push-уведомлений для Android/iOS через Capacitor
+  useEffect(() => {
+    if (!user || !Capacitor.isNativePlatform()) return
+
+    const registerPush = async () => {
+      try {
+        let permStatus = await PushNotifications.checkPermissions()
+        if (permStatus.receive === 'prompt') {
+          permStatus = await PushNotifications.requestPermissions()
+        }
+        if (permStatus.receive !== 'granted') {
+          console.warn('Push notification permission denied')
+          return
+        }
+
+        await PushNotifications.register()
+
+        PushNotifications.addListener('registration', async (token) => {
+          console.log('Push registration success, token:', token.value)
+          
+          const fcmSubscription = { fcmToken: token.value }
+
+          // Сохраняем/обновляем токен в таблице user_push_tokens
+          const { data: existing } = await supabase
+            .from('user_push_tokens')
+            .select('id')
+            .eq('user_id', user.id)
+            .maybeSingle()
+
+          if (existing) {
+            await supabase
+              .from('user_push_tokens')
+              .update({ subscription: fcmSubscription })
+              .eq('user_id', user.id)
+          } else {
+            await supabase
+              .from('user_push_tokens')
+              .insert({ user_id: user.id, subscription: fcmSubscription })
+          }
+        })
+
+        PushNotifications.addListener('registrationError', (error) => {
+          console.error('Push registration error:', error)
+        })
+
+        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+          console.log('Push notification received:', notification)
+        })
+
+        PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+          console.log('Push notification action performed:', notification)
+          const url = notification.notification.data?.url
+          if (url) {
+            navigate(url)
+          }
+        })
+      } catch (err) {
+        console.error('Error setting up native push:', err)
+      }
+    }
+
+    registerPush()
   }, [user])
 
   // Привязка удаленного аудиопотока

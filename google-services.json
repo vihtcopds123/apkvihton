@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "707284367238",
+    "project_id": "vihton-2710c",
+    "storage_bucket": "vihton-2710c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707284367238:android:eb476d6ef32e873cf7de07",
+        "android_client_info": {
+          "package_name": "ru.vihtclub.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBF83YZsCMvvu_pUMJMWkR8eueOP4CWBAE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
