@@ -848,6 +848,23 @@ body[data-theme="dark"],
   align-items: center !important;
 }
 
+/* Очищаем все внутренние обертки VKUI FormField/Input, чтобы убрать черные фоны и двойные рамки */
+.auth-input.vkuiFormField,
+.auth-input.vkuiInput,
+.auth-input .vkuiFormField__border,
+.auth-input .vkuiFormField__in,
+.auth-input .vkuiInput__in,
+.auth-input .vkuiFormField__control,
+.auth-input .vkuiInput__el {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
 [data-theme="light"] .auth-input {
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   background: rgba(255, 255, 255, 0.6) !important;
@@ -896,6 +913,24 @@ body[data-theme="dark"],
   align-items: center !important;
   justify-content: flex-start !important;
   line-height: normal !important;
+}
+
+/* Стилизация автозаполнения браузера */
+.auth-input input:-webkit-autofill,
+.auth-input input:-webkit-autofill:hover,
+.auth-input input:-webkit-autofill:focus,
+.auth-input input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(22, 28, 45, 0.95) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+[data-theme="light"] .auth-input input:-webkit-autofill,
+[data-theme="light"] .auth-input input:-webkit-autofill:hover,
+[data-theme="light"] .auth-input input:-webkit-autofill:focus,
+[data-theme="light"] .auth-input input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.95) inset !important;
+  -webkit-text-fill-color: #0f172a !important;
 }
 
 [data-theme="light"] .auth-input input,
