@@ -656,7 +656,21 @@ function AppContent() {
           return
         }
 
-        await PushNotifications.register()
+         await PushNotifications.register()
+
+        try {
+          await PushNotifications.createChannel({
+            id: 'default',
+            name: 'Default Channel',
+            description: 'General notifications',
+            importance: 5,
+            visibility: 1,
+            sound: 'default',
+            vibration: true
+          })
+        } catch (err) {
+          console.warn('Could not create notification channel:', err)
+        }
 
         PushNotifications.addListener('registration', async (token: any) => {
           console.log('Push registration success, token:', token.value)
