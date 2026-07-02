@@ -648,18 +648,14 @@ function AppContent() {
     const registerPush = async () => {
       try {
         let permStatus = await PushNotifications.checkPermissions()
-        alert('DEBUG: checkPermissions: ' + JSON.stringify(permStatus))
         if (permStatus.receive === 'prompt') {
           permStatus = await PushNotifications.requestPermissions()
-          alert('DEBUG: requestPermissions: ' + JSON.stringify(permStatus))
         }
         if (permStatus.receive !== 'granted') {
           console.warn('Push notification permission denied')
-          alert('DEBUG: Permission not granted, stopping. Status: ' + JSON.stringify(permStatus))
           return
         }
 
-        alert('DEBUG: Calling PushNotifications.register()...')
         await PushNotifications.register()
 
         try {
@@ -678,39 +674,25 @@ function AppContent() {
 
         PushNotifications.addListener('registration', async (token: any) => {
           console.log('Push registration success, token:', token.value)
-          alert('DEBUG: Registration success! Token: ' + token.value.slice(0, 15) + '...')
           
           const fcmSubscription = { fcmToken: token.value }
 
           // Сохраняем/обновляем токен в таблице user_push_tokens
-          const { data: existing, error: selectErr } = await supabase
+          const { data: existing } = await supabase
             .from('user_push_tokens')
             .select('id')
             .eq('user_id', user.id)
             .maybeSingle()
 
-          if (selectErr) {
-            alert('DEBUG: Select token error: ' + JSON.stringify(selectErr))
-          }
-
-          let saveError
           if (existing) {
-            const { error } = await supabase
+            await supabase
               .from('user_push_tokens')
               .update({ subscription: fcmSubscription })
               .eq('user_id', user.id)
-            saveError = error
           } else {
-            const { error } = await supabase
+            await supabase
               .from('user_push_tokens')
               .insert({ user_id: user.id, subscription: fcmSubscription })
-            saveError = error
-          }
-
-          if (saveError) {
-            alert('DEBUG: Save token error: ' + JSON.stringify(saveError))
-          } else {
-            alert('DEBUG: Token successfully saved to Supabase!')
           }
         })
 
