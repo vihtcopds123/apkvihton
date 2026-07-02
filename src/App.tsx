@@ -657,7 +657,7 @@ function AppContent() {
 
         await PushNotifications.register()
 
-        PushNotifications.addListener('registration', async (token) => {
+        PushNotifications.addListener('registration', async (token: any) => {
           console.log('Push registration success, token:', token.value)
           
           const fcmSubscription = { fcmToken: token.value }
@@ -681,15 +681,15 @@ function AppContent() {
           }
         })
 
-        PushNotifications.addListener('registrationError', (error) => {
+        PushNotifications.addListener('registrationError', (error: any) => {
           console.error('Push registration error:', error)
         })
 
-        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
           console.log('Push notification received:', notification)
         })
 
-        PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+        PushNotifications.addListener('pushNotificationActionPerformed', (notification: any) => {
           console.log('Push notification action performed:', notification)
           const url = notification.notification.data?.url
           if (url) {
