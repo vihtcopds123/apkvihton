@@ -805,160 +805,217 @@ body[data-theme="dark"],
   color: #64748b !important;
 }
 
-.auth-input-container {
+/* ============ iOS v2 Premium Auth Forms ============ */
+.auth-panel {
+  --ios-blue: #0a84ff;
+  --ios-blue-2: #5e5ce6;
+  --ios-ink: #ffffff;
+  --ios-muted: #8e8e93;
+  --ios-hair: rgba(255, 255, 255, 0.08);
+  --ios-glass: rgba(18, 22, 34, 0.65);
+  --ios-row: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="light"] .auth-panel {
+  --ios-blue: #007aff;
+  --ios-blue-2: #5856d6;
+  --ios-ink: #1c1c1e;
+  --ios-muted: #8a8a8e;
+  --ios-hair: #e4e4ea;
+  --ios-glass: rgba(255, 255, 255, 0.7);
+  --ios-row: rgba(255, 255, 255, 0.8);
+}
+
+/* Card layout adjustments */
+.auth-card {
+  background: var(--ios-glass) !important;
+  backdrop-filter: blur(30px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(160%) !important;
+  border-radius: 28px !important;
+  padding: 30px 22px 26px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 20px 34px rgba(0, 0, 0, 0.3) !important;
+  overflow: hidden;
+  animation: floaty 6s ease-in-out infinite 3.2s;
+}
+
+[data-theme="light"] .auth-card {
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 20px 34px rgba(30, 40, 90, 0.15) !important;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.auth-ios-group {
+  background: var(--ios-row);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .auth-ios-group {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.auth-ios-row {
   position: relative;
   display: flex;
   align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.auth-ios-row + .auth-ios-row {
+  border-top: 1px solid var(--ios-hair);
+}
+
+.auth-ios-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(10, 132, 255, 0.08), transparent 60%);
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+
+.auth-ios-row:focus-within .auth-ios-glow {
+  opacity: 1;
+}
+
+.auth-ios-row:focus-within {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+[data-theme="light"] .auth-ios-row:focus-within {
+  background: #ffffff !important;
+}
+
+.auth-ios-row-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.05);
+  transition: background .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+
+[data-theme="light"] .auth-ios-row-icon {
+  background: #f0f1f6;
+}
+
+.auth-ios-row:focus-within .auth-ios-row-icon {
+  background: linear-gradient(155deg, var(--ios-blue), var(--ios-blue-2));
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.auth-ios-row-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--ios-muted);
+  fill: none;
+  transition: stroke .3s ease;
+}
+
+.auth-ios-row:focus-within .auth-ios-row-icon svg {
+  stroke: #ffffff;
+}
+
+.auth-ios-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-ios-row-body label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ios-muted);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  transition: color .3s ease;
+  margin-bottom: 2px;
+  text-align: left;
+}
+
+.auth-ios-row:focus-within .auth-ios-row-body label {
+  color: var(--ios-blue);
+}
+
+.auth-ios-row-body input {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ios-ink) !important;
+  padding: 1px 0 0 !important;
+  margin: 0 !important;
+  font-family: inherit;
   width: 100%;
 }
 
-.auth-input-icon {
-  position: absolute;
-  left: 14px;
-  color: #64748b;
-  z-index: 5;
-  pointer-events: none;
+.auth-ios-row-body input::placeholder {
+  color: var(--ios-muted);
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+/* Password dot styling */
+.auth-ios-row-body input[type="password"] {
+  letter-spacing: 4px;
+  font-size: 16px;
+}
+
+.auth-ios-toggle-eye {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.auth-input-container:focus-within .auth-input-icon {
-  color: #a855f7;
-  transform: translateY(-50%) scale(1.1);
-}
-
-[data-theme="light"] .auth-input-container:focus-within .auth-input-icon {
-  color: #2563eb;
-}
-
-.auth-input {
-  border-radius: 12px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12) !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  padding: 0 16px 0 44px !important;
-  height: 48px !important;
-  box-sizing: border-box;
-  width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-/* Очищаем все внутренние обертки VKUI FormField/Input, чтобы убрать черные фоны и двойные рамки */
-.auth-input.vkuiFormField,
-.auth-input.vkuiInput,
-.auth-input .vkuiFormField__border,
-.auth-input .vkuiFormField__in,
-.auth-input .vkuiInput__in,
-.auth-input .vkuiFormField__control,
-.auth-input .vkuiInput__el {
-  background: transparent !important;
+  justify-content: center;
   border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  height: 100% !important;
-  min-height: 100% !important;
-}
-
-[data-theme="light"] .auth-input {
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background: rgba(255, 255, 255, 0.6) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-}
-
-.auth-input:hover {
-  border-color: rgba(255, 255, 255, 0.14) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-}
-
-[data-theme="light"] .auth-input:hover {
-  border-color: rgba(0, 0, 0, 0.14) !important;
-  background: rgba(255, 255, 255, 0.8) !important;
-}
-
-.auth-input:focus-within {
-  border-color: rgba(168, 85, 247, 0.45) !important;
-  background: rgba(168, 85, 247, 0.01) !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(168, 85, 247, 0.2) !important;
-}
-
-[data-theme="light"] .auth-input:focus-within {
-  border-color: rgba(37, 99, 235, 0.45) !important;
-  background: rgba(37, 99, 235, 0.01) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
-}
-
-.auth-input input,
-.auth-input .vkuiInput__el,
-.auth-input .vkuiInput__el input,
-.auth-input input.vkuiInput__el {
-  padding: 0 !important;
-  margin: 0 !important;
-  height: 100% !important;
-  width: 100% !important;
   background: transparent !important;
-  color: #ffffff !important;
-  border: none !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-weight: 400 !important;
-  font-size: 14.5px !important;
-  letter-spacing: 0.2px !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  line-height: normal !important;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
 }
 
-/* Стилизация автозаполнения браузера */
-.auth-input input:-webkit-autofill,
-.auth-input input:-webkit-autofill:hover,
-.auth-input input:-webkit-autofill:focus,
-.auth-input input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px rgba(22, 28, 45, 0.95) inset !important;
-  -webkit-text-fill-color: #ffffff !important;
+.auth-ios-toggle-eye svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--ios-muted);
+  fill: none;
+  transition: stroke .25s ease, transform .25s ease;
+}
+
+.auth-ios-toggle-eye:hover svg {
+  stroke: var(--ios-blue);
+}
+
+.auth-ios-toggle-eye:active svg {
+  transform: scale(.85);
+}
+
+/* Browser autocomplete overrides for standard input */
+.auth-ios-row-body input:-webkit-autofill,
+.auth-ios-row-body input:-webkit-autofill:hover,
+.auth-ios-row-body input:-webkit-autofill:focus,
+.auth-ios-row-body input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
   transition: background-color 5000s ease-in-out 0s;
-}
-
-[data-theme="light"] .auth-input input:-webkit-autofill,
-[data-theme="light"] .auth-input input:-webkit-autofill:hover,
-[data-theme="light"] .auth-input input:-webkit-autofill:focus,
-[data-theme="light"] .auth-input input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.95) inset !important;
-  -webkit-text-fill-color: #0f172a !important;
-}
-
-[data-theme="light"] .auth-input input,
-[data-theme="light"] .auth-input .vkuiInput__el,
-[data-theme="light"] .auth-input .vkuiInput__el input {
-  color: #0f172a !important;
-}
-
-/* Красивые ровные точки пароля через системный шрифт */
-.auth-input input[type="password"],
-.auth-input .vkuiInput__el[type="password"],
-.auth-input .vkuiInput__el[type="password"] input {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-size: 16px !important;
-  letter-spacing: 5px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-.auth-input input::placeholder {
-  color: #64748b !important;
-  letter-spacing: normal !important;
-  font-size: 14.5px !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-}
-
-[data-theme="light"] .auth-input input::placeholder {
-  color: #94a3b8 !important;
+  -webkit-text-fill-color: var(--ios-ink) !important;
 }
 
 /* Error Notification styling */
@@ -999,27 +1056,45 @@ body[data-theme="dark"],
   justify-content: center;
   width: 100% !important;
   margin-top: 10px !important;
-  border-radius: 12px !important;
+  border-radius: 14px !important;
   padding: 0 !important;
   min-height: 48px !important;
   height: 48px !important;
   font-size: 15px !important;
   font-weight: 700 !important;
-  background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%) !important;
+  background: linear-gradient(155deg, var(--ios-blue), var(--ios-blue-2)) !important;
   border: none !important;
   color: white !important;
-  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.25) !important;
+  box-shadow: 0 10px 22px -8px rgba(10, 132, 255, 0.4) !important;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.auth-submit-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.7s ease;
+}
+
+.auth-submit-btn:hover:not(:disabled)::after {
+  left: 130%;
 }
 
 .auth-submit-btn:hover:not(:disabled) {
   transform: translateY(-1.5px) !important;
-  box-shadow: 0 10px 25px rgba(168, 85, 247, 0.38) !important;
+  box-shadow: 0 14px 28px -6px rgba(10, 132, 255, 0.5) !important;
 }
 
 .auth-submit-btn:active:not(:disabled) {
-  transform: translateY(0.5px) !important;
+  transform: scale(0.97) !important;
 }
 
 .auth-divider {

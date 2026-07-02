@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import {
   Panel,
-  FormItem,
-  Input,
   Button,
   Box,
   Text,
@@ -29,6 +27,8 @@ export const LoginPanel: React.FC<LoginPanelProps> = ({ id }) => {
   const [showEmail, setShowEmail] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [revealPassword, setRevealPassword] = useState(false)
+  const [revealConfirmPassword, setRevealConfirmPassword] = useState(false)
   const usernameFieldRef = useRef<HTMLDivElement | null>(null)
   const emailFieldRef = useRef<HTMLDivElement | null>(null)
   const passwordFieldRef = useRef<HTMLDivElement | null>(null)
@@ -248,26 +248,35 @@ export const LoginPanel: React.FC<LoginPanelProps> = ({ id }) => {
                     Подтверждение почты
                   </Headline>
                   <Text className="auth-card-subtitle" style={{ marginTop: 8 }}>
-                    Код подтверждения отправлен на **{emailToVerify}**. Пожалуйста, введите его ниже для завершения регистрации.
+                    Код подтверждения отправлен на <strong>{emailToVerify}</strong>. Пожалуйста, введите его ниже для завершения регистрации.
                   </Text>
                 </Box>
 
                 <Spacing size={28} />
 
-                <div className="field-wrapper">
-                  <FormItem htmlFor="otpCode" className="field-label" style={{ textAlign: 'center' }}>Код подтверждения</FormItem>
-                  <Input
-                    id="otpCode"
-                    type="text"
-                    maxLength={10}
-                    placeholder="Введите код"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                    required
-                    disabled={loading}
-                    className="auth-input"
-                    style={{ letterSpacing: '0.4em', textAlign: 'center', fontSize: '22px', fontWeight: 'bold' }}
-                  />
+                <div className="auth-ios-group">
+                  <div className="auth-ios-row">
+                    <span className="auth-ios-glow"></span>
+                    <div className="auth-ios-row-icon">
+                      <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                      </svg>
+                    </div>
+                    <div className="auth-ios-row-body" style={{ alignItems: 'center' }}>
+                      <label htmlFor="otpCode" style={{ width: '100%', textAlign: 'center' }}>Код подтверждения</label>
+                      <input
+                        id="otpCode"
+                        type="text"
+                        maxLength={10}
+                        placeholder="Введите код"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                        required
+                        disabled={loading}
+                        style={{ letterSpacing: '0.4em', textAlign: 'center', fontSize: '20px', fontWeight: 'bold' }}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {error && (
@@ -370,29 +379,32 @@ export const LoginPanel: React.FC<LoginPanelProps> = ({ id }) => {
 
                   {isRecovery ? (
                     <>
-                      {!recoverySuccess && (
-                        <div className="field-wrapper">
-                          <FormItem htmlFor="email" className="field-label">Электронная почта</FormItem>
-                          <div className="auth-input-container">
-                            <div className="auth-input-icon">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <div className="auth-ios-group">
+                        {!recoverySuccess && (
+                          <div className="auth-ios-row">
+                            <span className="auth-ios-glow"></span>
+                            <div className="auth-ios-row-icon">
+                              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                                 <polyline points="22,6 12,13 2,6"/>
                               </svg>
                             </div>
-                            <Input
-                              id="email"
-                              type="email"
-                              placeholder="name@example.com"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              required
-                              disabled={loading}
-                              className="auth-input"
-                            />
+                            <div className="auth-ios-row-body">
+                              <label htmlFor="email">Электронная почта</label>
+                              <input
+                                id="email"
+                                type="email"
+                                placeholder="name@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                disabled={loading}
+                                autoComplete="email"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
 
                       <Spacing size={24} />
 
@@ -422,63 +434,183 @@ export const LoginPanel: React.FC<LoginPanelProps> = ({ id }) => {
                     </>
                   ) : isRegister ? (
                     <>
-                      <div className="field-wrapper">
-                        <FormItem htmlFor="fullName" className="field-label">Имя и фамилия</FormItem>
-                        <div className="auth-input-container">
-                          <div className="auth-input-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <div className="auth-ios-group">
+                        <div className="auth-ios-row">
+                          <span className="auth-ios-glow"></span>
+                          <div className="auth-ios-row-icon">
+                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                               <circle cx="12" cy="7" r="4"/>
                             </svg>
                           </div>
-                          <Input
-                            id="fullName"
-                            type="text"
-                            placeholder="Введите ваше имя"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            required
-                            disabled={loading}
-                            className="auth-input"
-                          />
+                          <div className="auth-ios-row-body">
+                            <label htmlFor="fullName">Имя и фамилия</label>
+                            <input
+                              id="fullName"
+                              type="text"
+                              placeholder="Введите ваше имя"
+                              value={fullName}
+                              onChange={(e) => setFullName(e.target.value)}
+                              required
+                              disabled={loading}
+                              autoComplete="name"
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      {showUsername && (
-                        <div ref={usernameFieldRef} className="field-wrapper field-appear">
-                          <FormItem htmlFor="username" className="field-label">Тег пользователя</FormItem>
-                          <div className="auth-input-container">
-                            <div className="auth-input-icon">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {showUsername && (
+                          <div ref={usernameFieldRef} className="auth-ios-row field-appear">
+                            <span className="auth-ios-glow"></span>
+                            <div className="auth-ios-row-icon">
+                              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="4"/>
                                 <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
                               </svg>
                             </div>
-                            <Input
-                              id="username"
-                              type="text"
-                              placeholder="user-tag"
-                              value={username}
-                              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                              required
-                              disabled={loading}
-                              className="auth-input"
-                            />
+                            <div className="auth-ios-row-body">
+                              <label htmlFor="username">Тег пользователя</label>
+                              <input
+                                id="username"
+                                type="text"
+                                placeholder="user-tag"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                                required
+                                disabled={loading}
+                                autoComplete="username"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {showEmail && (
-                        <div ref={emailFieldRef} className="field-wrapper field-appear">
-                          <FormItem htmlFor="email" className="field-label">Электронная почта</FormItem>
-                          <div className="auth-input-container">
-                            <div className="auth-input-icon">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {showEmail && (
+                          <div ref={emailFieldRef} className="auth-ios-row field-appear">
+                            <span className="auth-ios-glow"></span>
+                            <div className="auth-ios-row-icon">
+                              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                                 <polyline points="22,6 12,13 2,6"/>
                               </svg>
                             </div>
-                            <Input
+                            <div className="auth-ios-row-body">
+                              <label htmlFor="email">Электронная почта</label>
+                              <input
+                                id="email"
+                                type="email"
+                                placeholder="name@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                disabled={loading}
+                                autoComplete="email"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {showPassword && (
+                          <div ref={passwordFieldRef} className="auth-ios-row field-appear">
+                            <span className="auth-ios-glow"></span>
+                            <div className="auth-ios-row-icon">
+                              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="5" y="11" width="14" height="9" rx="2.5"/>
+                                <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+                              </svg>
+                            </div>
+                            <div className="auth-ios-row-body">
+                              <label htmlFor="password">Пароль</label>
+                              <input
+                                id="password"
+                                type={revealPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                disabled={loading}
+                                autoComplete="new-password"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="auth-ios-toggle-eye"
+                              onClick={() => setRevealPassword(!revealPassword)}
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                {revealPassword ? (
+                                  <>
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                  </>
+                                )}
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+
+                        {showConfirmPassword && (
+                          <div ref={confirmPasswordFieldRef} className="auth-ios-row field-appear">
+                            <span className="auth-ios-glow"></span>
+                            <div className="auth-ios-row-icon">
+                              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="5" y="11" width="14" height="9" rx="2.5"/>
+                                <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+                              </svg>
+                            </div>
+                            <div className="auth-ios-row-body">
+                              <label htmlFor="confirmPassword">Повторите пароль</label>
+                              <input
+                                id="confirmPassword"
+                                type={revealConfirmPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                                disabled={loading}
+                                autoComplete="new-password"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="auth-ios-toggle-eye"
+                              onClick={() => setRevealConfirmPassword(!revealConfirmPassword)}
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                {revealConfirmPassword ? (
+                                  <>
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                  </>
+                                )}
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="auth-ios-group">
+                        <div className="auth-ios-row">
+                          <span className="auth-ios-glow"></span>
+                          <div className="auth-ios-row-icon">
+                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="5" width="18" height="14" rx="2.5"/>
+                              <path d="M3 7l9 6 9-6"/>
+                            </svg>
+                          </div>
+                          <div className="auth-ios-row-body">
+                            <label htmlFor="email">Электронная почта</label>
+                            <input
                               id="email"
                               type="email"
                               placeholder="name@example.com"
@@ -486,120 +618,67 @@ export const LoginPanel: React.FC<LoginPanelProps> = ({ id }) => {
                               onChange={(e) => setEmail(e.target.value)}
                               required
                               disabled={loading}
-                              className="auth-input"
+                              autoComplete="email"
                             />
                           </div>
                         </div>
-                      )}
 
-                      {showPassword && (
-                        <div ref={passwordFieldRef} className="field-wrapper field-appear">
-                          <FormItem htmlFor="password" className="field-label">Пароль</FormItem>
-                          <div className="auth-input-container">
-                            <div className="auth-input-icon">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                              </svg>
-                            </div>
-                            <Input
+                        <div className="auth-ios-row">
+                          <span className="auth-ios-glow"></span>
+                          <div className="auth-ios-row-icon">
+                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="5" y="11" width="14" height="9" rx="2.5"/>
+                              <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+                            </svg>
+                          </div>
+                          <div className="auth-ios-row-body">
+                            <label htmlFor="password">Пароль</label>
+                            <input
                               id="password"
-                              type="password"
-                              placeholder="Придумайте пароль"
+                              type={revealPassword ? 'text' : 'password'}
+                              placeholder="••••••••"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
                               required
                               disabled={loading}
-                              className="auth-input"
+                              autoComplete="current-password"
                             />
                           </div>
-                        </div>
-                      )}
-
-                      {showConfirmPassword && (
-                        <div ref={confirmPasswordFieldRef} className="field-wrapper field-appear">
-                          <FormItem htmlFor="confirmPassword" className="field-label">Повторите пароль</FormItem>
-                          <div className="auth-input-container">
-                            <div className="auth-input-icon">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                              </svg>
-                            </div>
-                            <Input
-                              id="confirmPassword"
-                              type="password"
-                              placeholder="Повторите пароль"
-                              value={confirmPassword}
-                              onChange={(e) => setConfirmPassword(e.target.value)}
-                              required
-                              disabled={loading}
-                              className="auth-input"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <div className="field-wrapper">
-                        <FormItem htmlFor="email" className="field-label">Электронная почта</FormItem>
-                        <div className="auth-input-container">
-                          <div className="auth-input-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                              <polyline points="22,6 12,13 2,6"/>
+                          <button
+                            type="button"
+                            className="auth-ios-toggle-eye"
+                            onClick={() => setRevealPassword(!revealPassword)}
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              {revealPassword ? (
+                                <>
+                                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                  <line x1="1" y1="1" x2="23" y2="23" />
+                                </>
+                              ) : (
+                                <>
+                                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                                  <circle cx="12" cy="12" r="3" />
+                                </>
+                              )}
                             </svg>
-                          </div>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="name@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            disabled={loading}
-                            className="auth-input"
-                          />
+                          </button>
                         </div>
                       </div>
 
-                      <div className="field-wrapper">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                          <span className="field-label" style={{ margin: 0 }}>Пароль</span>
-                          <span
-                            onClick={handleForgotPassword}
-                            style={{
-                              fontSize: '12px',
-                              color: 'var(--vkui--color_text_link, #a855f7)',
-                              cursor: 'pointer',
-                              fontWeight: 600,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px',
-                              transition: 'opacity 0.2s ease',
-                            }}
-                          >
-                            Восстановить пароль
-                          </span>
-                        </div>
-                        <div className="auth-input-container">
-                          <div className="auth-input-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                            </svg>
-                          </div>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            disabled={loading}
-                            className="auth-input"
-                          />
-                        </div>
+                      <div className="row-links" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10, marginBottom: 20 }}>
+                        <span
+                          onClick={handleForgotPassword}
+                          style={{
+                            fontSize: '13px',
+                            color: 'var(--ios-blue)',
+                            cursor: 'pointer',
+                            fontWeight: 500,
+                            transition: 'opacity 0.2s ease',
+                          }}
+                        >
+                          Забыли пароль?
+                        </span>
                       </div>
                     </>
                   )}
