@@ -24,6 +24,7 @@ import { useAppStore, setGlobalNavigate } from './store/useAppStore'
 import { supabase } from './supabaseClient'
 import { Capacitor } from '@capacitor/core'
 import { PushNotifications } from '@capacitor/push-notifications'
+import { App as CapacitorApp } from '@capacitor/app'
 
 // Import panels
 import { LoginPanel } from './panels/LoginPanel'
@@ -703,6 +704,94 @@ function AppContent() {
 
     registerPush()
   }, [user])
+
+  // Перехват системного жеста и кнопки "Назад" на Android/iOS для Capacitor
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return
+
+    const setupBackButton = async () => {
+      const listener = await CapacitorApp.addListener('backButton', () => {
+        const store = useAppStore.getState()
+
+        // 1. Закрытие открытых оверлеев, drawers и модалок
+        if (store.showAttachmentsDrawer) {
+          store.setShowAttachmentsDrawer(false)
+          return
+        }
+        if (store.showChannelInfo) {
+          store.setShowChannelInfo(false)
+          return
+        }
+        if (store.openStickerPackCode) {
+          store.setOpenStickerPackCode(null)
+          return
+        }
+
+        // 2. Свайп назад в чате -> возвращаемся в список диалогов
+        if (store.activeStory === 'messages' && store.activePanel === 'chat_detail') {
+          store.selectChat(null)
+          return
+        }
+
+        // 3. С настроек/информации канала возвращение в сам канал
+        // (уже обработано выше через showChannelInfo)
+
+        // 4. Свайп в канале -> возвращаемся в список сообществ/каналов
+        if (store.activeStory === 'groups' && store.activePanel === 'group_detail') {
+          store.selectGroup(null)
+          return
+        }
+
+        // 5. Со списка каналов -> возвращаемся в новости
+        if (store.activeStory === 'groups' && store.activePanel === 'main') {
+          store.setStory('feed')
+          return
+        }
+
+        // 6. С настроек -> возвращаемся на мою страницу (профиль)
+        if (store.activeStory === 'settings') {
+          store.setStory('profile')
+          return
+        }
+
+        // 7. О приложении (About / Support / Download) -> возвращаемся на мою страницу (профиль)
+        if (store.activeStory === 'about' || store.activeStory === 'support' || store.activeStory === 'download') {
+          store.setStory('profile')
+          return
+        }
+
+        // 8. Баланс -> возвращаемся на мою страницу (профиль)
+        if (store.activeStory === 'balance') {
+          store.setStory('profile')
+          return
+        }
+
+        // 9. На моей странице (профиль) -> возвращаемся в новости
+        if (store.activeStory === 'profile') {
+          store.setStory('feed')
+          return
+        }
+
+        // 10. С других вкладок (друзья, уведомления, музыка, закладки) -> возвращаемся в новости
+        if (store.activeStory !== 'feed') {
+          store.setStory('feed')
+          return
+        }
+
+        // 11. Если мы на главной странице новостей и некуда возвращаться -> сворачиваем приложение
+        CapacitorApp.exitApp()
+      })
+
+      return () => {
+        listener.remove()
+      }
+    }
+
+    const sub = setupBackButton()
+    return () => {
+      sub.then(cleanup => cleanup())
+    }
+  }, [])
 
   // Привязка удаленного аудиопотока
   useEffect(() => {
