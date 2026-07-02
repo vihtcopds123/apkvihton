@@ -1,0 +1,396 @@
+# ЛОКАЛЬНАЯ РАЗРАБОТКА — ВК-КЛОН ПОЛНЫЙ ПЛАН
+
+## 💻 ТВОЯ МАШИНА: VIHT (Windows 11, 16GB RAM, Ryzen 5 1600)
+
+---
+
+## ШАГ 1 — УСТАНОВКА DOCKER DESKTOP
+
+1. Зайди на https://www.docker.com/products/docker-desktop/
+2. Скачай **Docker Desktop for Windows**
+3. Установи, перезагрузи ПК
+4. Запусти Docker Desktop — дождись пока в трее иконка станет зелёной
+
+**Проверь в PowerShell:**
+```powershell
+docker --version
+docker compose version
+```
+
+Должно вывести версии без ошибок.
+
+> ⚠️ Если спросит про WSL2 — соглашайся, Docker на Windows работает через WSL2
+
+---
+
+## ШАГ 2 — УСТАНОВКА GIT (если нет)
+
+1. Скачай https://git-scm.com/download/win
+2. Установи с настройками по умолчанию
+
+**Проверь:**
+```powershell
+git --version
+```
+
+---
+
+## ШАГ 3 — УСТАНОВКА NODE.JS (если нет)
+
+1. Скачай https://nodejs.org/ — версию LTS
+2. Установи
+
+**Проверь:**
+```powershell
+node --version
+npm --version
+```
+
+---
+
+## ШАГ 4 — ЗАПУСК SUPABASE ЛОКАЛЬНО
+
+Открой PowerShell или Windows Terminal:
+
+```powershell
+# Создай папку для проектов
+mkdir C:\Projects
+cd C:\Projects
+
+# Клонируй Supabase
+git clone --depth 1 https://github.com/supabase/supabase
+cd supabase\docker
+
+# Скопируй env файл
+copy .env.example .env
+```
+
+**Открой `.env` в блокноте или VS Code и найди эти строки — они уже заполнены дефолтными значениями для локалки, менять ничего не нужно для старта:**
+
+```env
+POSTGRES_PASSWORD=your-super-secret-and-long-postgres-password
+JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters-long
+ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...  # уже есть
+SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...  # уже есть
+SITE_URL=http://localhost:3000
+```
+
+**Запусти Supabase:**
+```powershell
+docker compose up -d
+```
+
+Первый запуск скачает образы — подожди 5-10 минут.
+
+**Проверь что всё запустилось:**
+```powershell
+docker compose ps
+```
+
+Все контейнеры должны быть в статусе `running`.
+
+**Открой в браузере:**
+- Supabase Studio: http://localhost:8000
+- Логин: `supabase`
+- Пароль: `this_password_is_insecure_and_should_be_updated` (из .env файла, поле `DASHBOARD_PASSWORD`)
+
+---
+
+## ШАГ 5 — СОЗДАНИЕ ТАБЛИЦ В SUPABASE
+
+Открой http://localhost:8000 → **SQL Editor** → вставь и выполни:
+
+```sql
+-- Профили
+create table profiles (
+  id uuid references auth.users primary key,
+  vk_id text unique,
+  username text unique,
+  full_name text,
+  avatar_url text,
+  cover_url text,
+  bio text,
+  city text,
+  birth_date date,
+  is_online boolean default false,
+  last_seen timestamptz default now(),
+  created_at timestamptz default now()
+);
+
+-- Посты
+create table posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid references profiles(id) on delete cascade,
+  content text not null,
+  images text[],
+  likes_count int default 0,
+  comments_count int default 0,
+  group_id uuid,
+  created_at timestamptz default now()
+);
+
+-- Лайки
+create table post_likes (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid references posts(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique(post_id, user_id)
+);
+
+-- Комментарии
+create table comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid references posts(id) on delete cascade,
+  author_id uuid references profiles(id) on delete cascade,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+-- Дружба
+create table friendships (
+  id uuid primary key default gen_random_uuid(),
+  requester_id uuid references profiles(id) on delete cascade,
+  addressee_id uuid references profiles(id) on delete cascade,
+  status text check (status in ('pending', 'accepted', 'blocked')) default 'pending',
+  created_at timestamptz default now(),
+  unique(requester_id, addressee_id)
+);
+
+-- Диалоги
+create table conversations (
+  id uuid primary key default gen_random_uuid(),
+  participant_1 uuid references profiles(id),
+  participant_2 uuid references profiles(id),
+  updated_at timestamptz default now(),
+  unique(participant_1, participant_2)
+);
+
+-- Сообщения
+create table messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid references conversations(id) on delete cascade,
+  sender_id uuid references profiles(id) on delete cascade,
+  content text,
+  image_url text,
+  is_read boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Группы
+create table groups (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  description text,
+  avatar_url text,
+  cover_url text,
+  owner_id uuid references profiles(id),
+  members_count int default 0,
+  is_public boolean default true,
+  created_at timestamptz default now()
+);
+
+-- Участники групп
+create table group_members (
+  id uuid primary key default gen_random_uuid(),
+  group_id uuid references groups(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  role text check (role in ('member', 'admin', 'owner')) default 'member',
+  joined_at timestamptz default now(),
+  unique(group_id, user_id)
+);
+
+-- Уведомления
+create table notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  type text check (type in ('like', 'comment', 'friend_request', 'friend_accepted')),
+  from_user_id uuid references profiles(id),
+  post_id uuid references posts(id),
+  is_read boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Фотографии
+create table photos (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references profiles(id) on delete cascade,
+  url text not null,
+  caption text,
+  likes_count int default 0,
+  created_at timestamptz default now()
+);
+
+-- RLS включить
+alter table profiles enable row level security;
+alter table posts enable row level security;
+alter table post_likes enable row level security;
+alter table comments enable row level security;
+alter table friendships enable row level security;
+alter table conversations enable row level security;
+alter table messages enable row level security;
+alter table groups enable row level security;
+alter table group_members enable row level security;
+alter table notifications enable row level security;
+alter table photos enable row level security;
+```
+
+---
+
+## ШАГ 6 — СОЗДАНИЕ STORAGE БАКЕТОВ
+
+В Supabase Studio → **Storage** → New Bucket:
+
+| Имя бакета | Public |
+|------------|--------|
+| avatars | ✅ |
+| covers | ✅ |
+| posts-media | ✅ |
+| photos | ✅ |
+| chat-media | ❌ |
+
+---
+
+## ШАГ 7 — СОЗДАНИЕ ФРОНТЕНДА
+
+Открой новый PowerShell:
+
+```powershell
+cd C:\Projects
+
+# Создай проект
+npm create vite@latest vk-social -- --template react-ts
+cd vk-social
+
+# Установи все зависимости
+npm install @vkontakte/vkui @vkontakte/icons
+npm install @supabase/supabase-js
+npm install zustand
+npm install react-router-dom
+npm install react-infinite-scroll-component
+```
+
+**Создай файл `.env.local` в корне проекта:**
+```env
+VITE_SUPABASE_URL=http://localhost:8000
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWRlbW8iLCJpYXQiOjE2NDE3NjkyMDAsImV4cCI6MTc5OTUzNTYwMH0.dc_X5iR_VP_qroESVgntQzvWoTxW_gkUk_6Bi3jBOXU
+VITE_VK_CLIENT_ID=пока_не_нужен_для_локалки
+VITE_REDIRECT_URI=http://localhost:5173/auth/callback
+```
+
+> ℹ️ ANON_KEY выше — это стандартный ключ из дефолтного .env Supabase. Если менял JWT_SECRET — возьми ключ из своего .env файла Supabase
+
+**Запусти фронтенд:**
+```powershell
+npm run dev
+```
+
+Сайт откроется на http://localhost:5173
+
+---
+
+## ШАГ 8 — СКИНУТЬ ПРОМТ В ANTIGRAVITY
+
+Открой Antigravity IDE → новый проект → открой папку `C:\Projects\vk-social`
+
+Скинь промт из файла `antigravity_vk_clone_prompt.md` и добавь в начало:
+
+```
+Мы работаем в ЛОКАЛЬНОЙ среде.
+Supabase запущен локально на http://localhost:8000
+Фронтенд на http://localhost:5173
+Все env переменные уже настроены в .env.local
+Начни с создания структуры папок и базовых файлов.
+Авторизацию через VK ID пока пропусти — сделай просто Email/пароль через Supabase Auth.
+```
+
+---
+
+## ШАГ 9 — ТЕСТИРОВАНИЕ
+
+**Что тестируешь локально:**
+- Регистрация / вход
+- Создание постов
+- Лайки и комментарии
+- Загрузка фото
+- Чат в реальном времени
+- Друзья / заявки
+- Группы
+
+**Тестовые пользователи:**
+Создай в Supabase Studio → Authentication → Users → Add User:
+- test1@test.com / password123
+- test2@test.com / password123
+
+Открой сайт в двух разных браузерах (Chrome + Edge) под разными аккаунтами — так тестируешь чат и заявки в друзья.
+
+---
+
+## ШАГ 10 — ДЕПЛОЙ НА VPS (когда готово)
+
+Когда всё работает локально — деплоишь одной командой:
+
+```powershell
+# Собери фронтенд
+cd C:\Projects\vk-social
+npm run build
+
+# Скопируй на сервер (замени IP на свой)
+scp -r dist/* root@IP_СЕРВЕРА:/var/www/social/dist/
+```
+
+Supabase на сервере настраивается по плану из файла `vk_clone_fullplan.md`.
+
+---
+
+## 🔄 ЕЖЕДНЕВНЫЙ WORKFLOW
+
+```powershell
+# Утром — запустить если Docker не запущен
+cd C:\Projects\supabase\docker
+docker compose up -d
+
+# Работать с фронтендом
+cd C:\Projects\vk-social
+npm run dev
+
+# Вечером — остановить если не нужно
+cd C:\Projects\supabase\docker
+docker compose stop
+```
+
+---
+
+## ⚠️ ВОЗМОЖНЫЕ ПРОБЛЕМЫ
+
+**Docker не запускается:**
+- Убедись что WSL2 установлен: `wsl --install` в PowerShell от администратора
+- Перезагрузи ПК после установки
+
+**Порт 8000 занят:**
+- Измени в `supabase/docker/.env` → `STUDIO_PORT=8001`
+
+**Supabase Studio не открывается:**
+```powershell
+docker compose ps  # смотри статус контейнеров
+docker compose logs  # смотри ошибки
+```
+
+**Мало RAM — всё тормозит:**
+- Закрой лишние вкладки браузера
+- В Docker Desktop → Settings → Resources → Memory → поставь 6 GB максимум
+- Оставшиеся 10 GB для Windows + браузер + Antigravity
+
+---
+
+## 📊 РАСХОД RAM НА VIHT (16 GB)
+
+| Что | RAM |
+|-----|-----|
+| Windows 11 | ~3 GB |
+| Docker + Supabase | ~3-4 GB |
+| Chrome (браузер) | ~1-2 GB |
+| Antigravity IDE | ~1-2 GB |
+| Запас | ~5-6 GB |
+
+Всё влезает комфортно ✅
