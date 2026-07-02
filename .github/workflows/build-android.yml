@@ -40,6 +40,7 @@ jobs:
         run: |
           npx cap add android
           cp google-services.json android/app/google-services.json
+          node scratch/modify_manifest.cjs
           npx cap sync
           cd android
           chmod +x gradlew
